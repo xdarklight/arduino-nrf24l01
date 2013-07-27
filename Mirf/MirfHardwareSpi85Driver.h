@@ -8,11 +8,11 @@
 class MirfHardwareSpi85Driver : public MirfSpiDriver {
 
 	public: 
-		uint8_t transfer(uint8_t data){
+		uint8_t transfer(uint8_t data) {
 			return SPI85.transfer(data);
 		}
 
-		void begin(){
+		void begin() {
 			SPI85.begin();
 			SPI85.setDataMode(SPI_MODE0);
 #if 0
@@ -21,7 +21,7 @@ class MirfHardwareSpi85Driver : public MirfSpiDriver {
 #endif
 		}
 
-		void end(){
+		void end() {
 			SPI85.end();
 		}
 };

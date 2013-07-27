@@ -8,17 +8,17 @@
 class MirfHardwareSpiDriver : public MirfSpiDriver {
 
 	public: 
-		uint8_t transfer(uint8_t data){
+		uint8_t transfer(uint8_t data) {
 			return SPI.transfer(data);
 		}
 
-		void begin(){
+		void begin() {
 			SPI.begin();
 			SPI.setDataMode(SPI_MODE0);
 			SPI.setClockDivider(SPI_2XCLOCK_MASK);
 		}
 
-		void end(){
+		void end() {
 		}
 };
 

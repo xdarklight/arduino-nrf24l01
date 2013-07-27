@@ -35,7 +35,7 @@
 // Nrf24l settings
 
 #define mirf_ADDR_LEN	5
-#define mirf_CONFIG ((1<<EN_CRC) | (0<<CRCO) )
+#define mirf_CONFIG ((1<<EN_CRC) | (0<<CRCO))
 
 class Nrf24l {
 	public:
