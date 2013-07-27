@@ -1,5 +1,5 @@
 /**
- * A Mirf example to test the latency between an
+ * A Mirf example test sending and receiving data between
  * Ardunio (running as server) and ATTiny85 (running as client).
  *
  * Pins:
@@ -18,7 +18,7 @@
 #include <nRF24L01.h>
 #include <MirfHardwareSpi85Driver.h>
 
-void setup(){
+void setup() {
   /*
    * Setup pins / SPI.
    */
@@ -60,26 +60,35 @@ void setup(){
 }
 
 void loop() {
+  static unsigned long counter = 0;
   unsigned long time = millis();
   
   Mirf.setTADDR((byte *)"serv1");
   
-  Mirf.send((byte *)&time);
-  
-  while(Mirf.isSending()){
-  }
+  Mirf.send((byte *)&counter);
 
-  delay(10);
-  while(!Mirf.dataReady()){
-    //Serial.println("Waiting");
-    if ( ( millis() - time ) > 1000 ) {
+  while (Mirf.isSending()) {
+    if ((millis() - time) > 1000) {
+      delay(1000);
       return;
     }
   }
-  
-  Mirf.getData((byte *) &time);
 
-  delay(1000);
+  delay(10);
+
+  while (!Mirf.dataReady()){
+    if ((millis() - time) > 1000) {
+      delay(1000);
+      return;
+    }
+  }
+
+  unsigned long recv;
+  Mirf.getData((byte *) &recv);
+
+  counter = recv + 1;
+
+  delay(500);
 } 
   
   
