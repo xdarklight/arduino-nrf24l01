@@ -37,8 +37,6 @@
 #define mirf_ADDR_LEN	5
 #define mirf_CONFIG ((1<<EN_CRC) | (0<<CRCO) )
 
-class SoftwareSerial;
-
 class Nrf24l {
 	public:
 		Nrf24l();
