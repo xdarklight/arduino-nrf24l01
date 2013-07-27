@@ -2,6 +2,8 @@
  * A Mirf example test sending and receiving data between
  * Ardunio (running as server) and ATTiny85 (running as client).
  *
+ * This uses the SPI85 class from: https://github.com/stanleyseow/attiny-nRF24L01/tree/master/libraries/SPI85
+ *
  * Pins:
  * Hardware SPI:
  * MISO -> PB0
