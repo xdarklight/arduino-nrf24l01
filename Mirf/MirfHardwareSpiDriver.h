@@ -8,11 +8,20 @@
 class MirfHardwareSpiDriver : public MirfSpiDriver {
 
 	public: 
-		virtual uint8_t transfer(uint8_t data);
-		virtual void begin();
-		virtual void end();
+		uint8_t transfer(uint8_t data){
+			return SPI.transfer(data);
+		}
+
+		void begin(){
+			SPI.begin();
+			SPI.setDataMode(SPI_MODE0);
+			SPI.setClockDivider(SPI_2XCLOCK_MASK);
+		}
+
+		void end(){
+		}
 };
 
-extern MirfHardwareSpiDriver MirfHardwareSpi;
+MirfHardwareSpiDriver MirfHardwareSpi;
 
 #endif
