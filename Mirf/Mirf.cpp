@@ -62,6 +62,7 @@ Nrf24l::Nrf24l() {
 	channel = 1;
 	payload = 16;
 	spi = NULL;
+	baseConfig = _BV(EN_CRC) & ~_BV(CRCO);
 }
 
 void Nrf24l::init() 
@@ -240,7 +241,7 @@ void Nrf24l::powerUpRx() {
 	PTX = 0;
 	ceLow();
 
-	configRegister(CONFIG, mirf_CONFIG | _BV(PWR_UP) | _BV(PRIM_RX));
+	configRegister(CONFIG, baseConfig | _BV(PWR_UP) | _BV(PRIM_RX));
 	configRegister(STATUS, _BV(RX_DR) | _BV(TX_DS) | _BV(MAX_RT)); 
 
 	ceHi();
@@ -252,7 +253,7 @@ void Nrf24l::flushRx(){
 
 void Nrf24l::powerUpTx() {
 	PTX = 1;
-	configRegister(CONFIG, mirf_CONFIG | _BV(PWR_UP) & ~_BV(PRIM_RX));
+	configRegister(CONFIG, baseConfig | _BV(PWR_UP) & ~_BV(PRIM_RX));
 }
 
 void Nrf24l::nrfSpiWrite(uint8_t reg, uint8_t *data, boolean readData, uint8_t len) {
@@ -293,7 +294,7 @@ void Nrf24l::csnLow(){
 void Nrf24l::powerDown(){
 	ceLow();
 
-	configRegister(CONFIG, mirf_CONFIG);
+	configRegister(CONFIG, baseConfig);
 
 	flushRx();
 	flushTx();
