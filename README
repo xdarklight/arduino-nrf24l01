@@ -12,3 +12,9 @@ This fork includes the following changes:
   "Mirf.baseConfig = _BV(EN_CRC) | _BV(CRCO);" before calling
   "Mirf.config();".
 * Reduced binary size.
+
+Other information:
+* This library supports changing less popular registers without
+  having to "hack" the libraries code. An example for changing
+  the RF_SETUP register:
+  "Mirf.configRegister(RF_SETUP, _BV(RF_DR_LOW));"
