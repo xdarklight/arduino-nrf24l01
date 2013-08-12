@@ -97,7 +97,7 @@ void Nrf24l::config()
 	flushRx();
 }
 
-void Nrf24l::setRADDR(uint8_t * adr) 
+void Nrf24l::setRADDR(const uint8_t * adr) 
 // Sets the receiving address
 {
 	ceLow();
@@ -105,7 +105,7 @@ void Nrf24l::setRADDR(uint8_t * adr)
 	ceHi();
 }
 
-void Nrf24l::setTADDR(uint8_t * adr)
+void Nrf24l::setTADDR(const uint8_t * adr)
 // Sets the transmitting address
 {
 	/*
@@ -165,14 +165,14 @@ void Nrf24l::readRegister(uint8_t reg, uint8_t * value, uint8_t len)
     nrfSpiWrite((R_REGISTER | (REGISTER_MASK & reg)), value, true, len);
 }
 
-void Nrf24l::writeRegister(uint8_t reg, uint8_t * value, uint8_t len) 
+void Nrf24l::writeRegister(uint8_t reg, const uint8_t * value, uint8_t len) 
 // Writes an array of bytes into inte the MiRF registers.
 {
-	nrfSpiWrite((W_REGISTER | (REGISTER_MASK & reg)), value, false, len);
+	nrfSpiWrite((W_REGISTER | (REGISTER_MASK & reg)), const_cast<uint8_t*>(value), false, len);
 }
 
 
-void Nrf24l::send(uint8_t * value) 
+void Nrf24l::send(const uint8_t * value) 
 // Sends a data package to the default address. Be sure to send the correct
 // amount of bytes as configured as payload on the receiver.
 {
@@ -193,7 +193,7 @@ void Nrf24l::send(uint8_t * value)
 	powerUpTx();       // Set to transmitter mode , Power up
 	flushTx();
 
-	nrfSpiWrite(W_TX_PAYLOAD, value, false, payload);   // Write payload
+	nrfSpiWrite(W_TX_PAYLOAD, const_cast<uint8_t*>(value), false, payload);   // Write payload
 
 	ceHi();                     // Start transmission
 	ceLow();
