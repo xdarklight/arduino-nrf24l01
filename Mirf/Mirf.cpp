@@ -56,13 +56,15 @@
 
 Nrf24l Mirf = Nrf24l();
 
-Nrf24l::Nrf24l() {
-	cePin = 8;
-	csnPin = 7;
-	channel = 1;
-	payload = 16;
-	spi = NULL;
-	baseConfig = _BV(EN_CRC) & ~_BV(CRCO);
+Nrf24l::Nrf24l() :
+	PTX(0),
+	cePin(8),
+	csnPin(7),
+	channel(1),
+	payload(16),	
+	baseConfig(_BV(EN_CRC) & ~_BV(CRCO)),
+	spi(NULL)
+{	
 }
 
 void Nrf24l::init()
@@ -177,11 +179,8 @@ void Nrf24l::send(const uint8_t * value)
 // Sends a data package to the default address. Be sure to send the correct
 // amount of bytes as configured as payload on the receiver.
 {
-	uint8_t status;
-	status = getStatus();
-
 	while (PTX) {
-		status = getStatus();
+		uint8_t status = getStatus();
 
 		if((status & ((1 << TX_DS)  | (1 << MAX_RT)))){
 			PTX = 0;
@@ -190,13 +189,14 @@ void Nrf24l::send(const uint8_t * value)
 	}                  // Wait until last paket is send
 
 	ceLow();
-
+	
 	powerUpTx();       // Set to transmitter mode , Power up
 	flushTx();
-
+		
 	nrfSpiWrite(W_TX_PAYLOAD, const_cast<uint8_t*>(value), false, payload);   // Write payload
 
-	ceHi();                     // Start transmission
+	PTX = 1;
+	ceHi();                     // Start transmission	
 	ceLow();
 }
 
@@ -209,9 +209,8 @@ void Nrf24l::send(const uint8_t * value)
  */
 
 bool Nrf24l::isSending() {
-	uint8_t status;
 	if(PTX){
-		status = getStatus();
+		uint8_t status = getStatus();
 
 		/*
 		 *  if sending successful (TX_DS) or max retries exceded (MAX_RT).
@@ -221,10 +220,13 @@ bool Nrf24l::isSending() {
 			powerUpRx();
 			return false; 
 		}
-
-		return true;
+		else {
+			return true;
+		}				
 	}
-	return false;
+	else {
+		return false;	
+	}	
 }
 
 uint8_t Nrf24l::getStatus(){
@@ -243,6 +245,7 @@ void Nrf24l::powerUpRx() {
 	ceLow();
 
 	configRegister(CONFIG, baseConfig | _BV(PWR_UP) | _BV(PRIM_RX));
+	// Clear interrupt flags
 	configRegister(STATUS, _BV(RX_DR) | _BV(TX_DS) | _BV(MAX_RT)); 
 
 	ceHi();
@@ -252,8 +255,7 @@ void Nrf24l::flushRx(){
 	nrfSpiWrite(FLUSH_RX);
 }
 
-void Nrf24l::powerUpTx() {
-	PTX = 1;
+void Nrf24l::powerUpTx() {	
 	configRegister(CONFIG, baseConfig | _BV(PWR_UP) & ~_BV(PRIM_RX));
 }
 
@@ -263,8 +265,7 @@ void Nrf24l::nrfSpiWrite(uint8_t reg, uint8_t *data, boolean readData, uint8_t l
 	spi->transfer(reg);
 
 	if (data) {
-		uint8_t i;
-		for(i = 0; i < len; ++i) {
+		for(uint8_t i = 0; i < len; ++i) {
 			uint8_t readValue = spi->transfer(data[i]);
 
 			if (readData) {
