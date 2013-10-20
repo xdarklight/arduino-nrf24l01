@@ -3,10 +3,10 @@
 
 class MirfSpiDriver {
 	public:
-		virtual uint8_t transfer(uint8_t data);
+		virtual uint8_t transfer(uint8_t data) = 0;
 
-		virtual void begin();
-		virtual void end();
+		virtual void begin() = 0;
+		virtual void end() = 0;
 };
 
 #endif
