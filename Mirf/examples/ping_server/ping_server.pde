@@ -94,6 +94,20 @@ void loop(){
     Mirf.send(data);
     
     /*
+     * This code prevents the server from an infinit
+     * send loop if client moves out of reach.
+     */
+    boolean flush_rx = true;
+    for(int count=0; count<100; count++){
+      if(!Mirf.isSending()){
+        flush_rx = false;
+        break;
+      }
+      delay(5);
+    }
+    if(flush_rx) Mirf.flushRx();
+    
+    /*
      * Wait untill sending has finished
      *
      * NB: isSending returns the chip to receving after returning true.
