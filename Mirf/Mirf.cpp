@@ -52,8 +52,6 @@
 
 #include "Mirf.h"
 
-// Defines for setting the MiRF registers for transmitting or receiving mode
-
 Nrf24l Mirf = Nrf24l();
 
 Nrf24l::Nrf24l() :
@@ -61,15 +59,13 @@ Nrf24l::Nrf24l() :
 	cePin(8),
 	csnPin(7),
 	channel(1),
-	payload(16),	
+	payload(16),
 	baseConfig(_BV(EN_CRC) & ~_BV(CRCO)),
 	spi(NULL)
-{	
+{
 }
 
 void Nrf24l::init()
-// Initializes pins to communicate with the MiRF module
-// Should be called in the early initializing phase at startup.
 {
 	pinMode(cePin, OUTPUT);
 	pinMode(csnPin, OUTPUT);
@@ -83,9 +79,6 @@ void Nrf24l::init()
 
 
 void Nrf24l::config()
-// Sets the important registers in the MiRF module and powers the module
-// in receiving mode
-// NB: channel and payload must be set now.
 {
 	// Set RF channel
 	configRegister(RF_CH,channel);
@@ -99,26 +92,23 @@ void Nrf24l::config()
 	flushRx();
 }
 
-void Nrf24l::setRADDR(const uint8_t * adr) 
-// Sets the receiving address
+void Nrf24l::setRADDR(const uint8_t * addr)
 {
 	ceLow();
-	writeRegister(RX_ADDR_P1,adr,mirf_ADDR_LEN);
+	writeRegister(RX_ADDR_P1, addr, mirf_ADDR_LEN);
 	ceHi();
 }
 
-void Nrf24l::setTADDR(const uint8_t * adr)
-// Sets the transmitting address
+void Nrf24l::setTADDR(const uint8_t * addr)
 {
 	/*
 	 * RX_ADDR_P0 must be set to the sending addr for auto ack to work.
 	 */
-	writeRegister(RX_ADDR_P0,adr,mirf_ADDR_LEN);
-	writeRegister(TX_ADDR,adr,mirf_ADDR_LEN);
+	writeRegister(RX_ADDR_P0, addr, mirf_ADDR_LEN);
+	writeRegister(TX_ADDR, addr, mirf_ADDR_LEN);
 }
 
-bool Nrf24l::dataReady() 
-// Checks if data is available for reading
+bool Nrf24l::dataReady()
 {
 	// See note in getData() function - just checking RX_DR isn't good enough
 	uint8_t status = getStatus();
@@ -140,8 +130,7 @@ bool Nrf24l::rxFifoEmpty()
 	return (fifoStatus & _BV(RX_EMPTY));
 }
 
-void Nrf24l::getData(uint8_t * data) 
-// Reads payload bytes into data array
+void Nrf24l::getData(uint8_t * data)
 {
 	nrfSpiWrite(R_RX_PAYLOAD, data, true, payload); // Read payload
 
@@ -157,27 +146,22 @@ void Nrf24l::getData(uint8_t * data)
 }
 
 void Nrf24l::configRegister(uint8_t reg, uint8_t value)
-// Clocks only one byte into the given MiRF register
 {
 	writeRegister(reg, &value, 1);
 }
 
 void Nrf24l::readRegister(uint8_t reg, uint8_t * value, uint8_t len)
-// Reads an array of bytes from the given start position in the MiRF registers.
 {
     nrfSpiWrite((R_REGISTER | (REGISTER_MASK & reg)), value, true, len);
 }
 
 void Nrf24l::writeRegister(uint8_t reg, const uint8_t * value, uint8_t len)
-// Writes an array of bytes into inte the MiRF registers.
 {
 	nrfSpiWrite((W_REGISTER | (REGISTER_MASK & reg)), const_cast<uint8_t*>(value), false, len);
 }
 
 
 void Nrf24l::send(const uint8_t * value)
-// Sends a data package to the default address. Be sure to send the correct
-// amount of bytes as configured as payload on the receiver.
 {
 	while (PTX) {
 		uint8_t status = getStatus();
@@ -196,51 +180,45 @@ void Nrf24l::send(const uint8_t * value)
 	nrfSpiWrite(W_TX_PAYLOAD, const_cast<uint8_t*>(value), false, payload);   // Write payload
 
 	PTX = 1;
-	ceHi();                     // Start transmission	
+	ceHi();                     // Start transmission
 	ceLow();
 }
 
-/**
- * isSending.
- *
- * Test if chip is still sending.
- * When sending has finished return chip to listening.
- *
- */
-
-bool Nrf24l::isSending() {
-	if(PTX){
+bool Nrf24l::isSending()
+{
+	if (PTX) {
 		uint8_t status = getStatus();
 
 		/*
 		 *  if sending successful (TX_DS) or max retries exceded (MAX_RT).
 		 */
-
 		if((status & ((1 << TX_DS)  | (1 << MAX_RT)))){
 			powerUpRx();
-			return false; 
+			return false;
 		}
 		else {
 			return true;
-		}				
+		}
 	}
-	else {
-		return false;	
-	}	
+
+	return false;
 }
 
-uint8_t Nrf24l::getStatus(){
+uint8_t Nrf24l::getStatus()
+{
 	/* Initialize with NOP so we get the first byte read back. */
 	uint8_t rv = NOP;
-	readRegister(STATUS,&rv,1);
+	readRegister(STATUS, &rv, 1);
 	return rv;
 }
 
-void Nrf24l::flushTx() {
+void Nrf24l::flushTx()
+{
 	nrfSpiWrite(FLUSH_TX);
 }
 
-void Nrf24l::powerUpRx() {
+void Nrf24l::powerUpRx()
+{
 	PTX = 0;
 	ceLow();
 
@@ -251,15 +229,18 @@ void Nrf24l::powerUpRx() {
 	ceHi();
 }
 
-void Nrf24l::flushRx(){
+void Nrf24l::flushRx()
+{
 	nrfSpiWrite(FLUSH_RX);
 }
 
-void Nrf24l::powerUpTx() {	
+void Nrf24l::powerUpTx()
+{
 	configRegister(CONFIG, baseConfig | _BV(PWR_UP) & ~_BV(PRIM_RX));
 }
 
-void Nrf24l::nrfSpiWrite(uint8_t reg, uint8_t *data, boolean readData, uint8_t len) {
+void Nrf24l::nrfSpiWrite(uint8_t reg, uint8_t *data, boolean readData, uint8_t len)
+{
 	csnLow();
 
 	spi->transfer(reg);
@@ -277,23 +258,28 @@ void Nrf24l::nrfSpiWrite(uint8_t reg, uint8_t *data, boolean readData, uint8_t l
 	csnHi();
 }
 
-void Nrf24l::ceHi(){
+void Nrf24l::ceHi()
+{
 	digitalWrite(cePin,HIGH);
 }
 
-void Nrf24l::ceLow(){
+void Nrf24l::ceLow()
+{
 	digitalWrite(cePin,LOW);
 }
 
-void Nrf24l::csnHi(){
+void Nrf24l::csnHi()
+{
 	digitalWrite(csnPin,HIGH);
 }
 
-void Nrf24l::csnLow(){
+void Nrf24l::csnLow()
+{
 	digitalWrite(csnPin,LOW);
 }
 
-void Nrf24l::powerDown(){
+void Nrf24l::powerDown()
+{
 	ceLow();
 
 	configRegister(CONFIG, baseConfig);

@@ -40,21 +40,74 @@ class Nrf24l {
 	public:
 		Nrf24l();
 
+		/**
+		 * Initializes pins to communicate with the MiRF module.
+		 * Should be called in the early initializing phase at startup.
+		 */
 		void init();
+
+		/**
+		 * Sets the important registers in the MiRF module and powers the module
+		 * in receiving mode. Channel and payload must be set now.
+		 */
 		void config();
+
+		/**
+		 * Sends a data package to the default address.
+		 * Be sure to send the correct amount of bytes as configured as payload
+		 * on the receiver.
+		 */
 		void send(const uint8_t *value);
-		void setRADDR(const uint8_t * adr);
-		void setTADDR(const uint8_t * adr);
+
+		/**
+		 * @brief Sets the receiving address.
+		 */
+		void setRADDR(const uint8_t * addr);
+
+		/**
+		 * @brief Sets the transmitting address.
+		 */
+		void setTADDR(const uint8_t * addr);
+
+		/**
+		 * @brief Checks if data is available for reading.
+		 */
 		bool dataReady();
+
+		/**
+		 * @brief Checks if the chip is currently sending data.
+		 */
 		bool isSending();
+
 		bool rxFifoEmpty();
-		bool txFifoEmpty();
+
+		/**
+		 * Reads payload bytes (if available - see dataReady()).
+		 *
+		 * @param data A byte-array in which the read data will be stored.
+		 */
 		void getData(uint8_t * data);
+
 		uint8_t getStatus();
-		
+
+		/**
+		 * Clocks only one byte into the given MiRF register
+		 *
+		 * @param reg The register which is written.
+		 * @param value The value which is written to the register.
+		 */
 		void configRegister(uint8_t reg, uint8_t value);
+
+		/**
+		 * @brief Reads an array of bytes from the given start position in the MiRF registers.
+		 */
 		void readRegister(uint8_t reg, uint8_t * value, uint8_t len);
+
+		/**
+		 * @brief Writes an array of bytes into inte the MiRF registers.
+		 */
 		void writeRegister(uint8_t reg, const uint8_t * value, uint8_t len);
+
 		void flushTx();
 		void powerUpRx();
 		void powerUpTx();
