@@ -65,10 +65,10 @@ Nrf24l::Nrf24l() {
 	baseConfig = _BV(EN_CRC) & ~_BV(CRCO);
 }
 
-void Nrf24l::init() 
+void Nrf24l::init()
 // Initializes pins to communicate with the MiRF module
 // Should be called in the early initializing phase at startup.
-{   
+{
 	pinMode(cePin, OUTPUT);
 	pinMode(csnPin, OUTPUT);
 
@@ -80,7 +80,7 @@ void Nrf24l::init()
 }
 
 
-void Nrf24l::config() 
+void Nrf24l::config()
 // Sets the important registers in the MiRF module and powers the module
 // in receiving mode
 // NB: channel and payload must be set now.
@@ -129,7 +129,8 @@ bool Nrf24l::dataReady()
 	return !rxFifoEmpty();
 }
 
-bool Nrf24l::rxFifoEmpty(){
+bool Nrf24l::rxFifoEmpty()
+{
 	uint8_t fifoStatus;
 
 	readRegister(FIFO_STATUS, &fifoStatus, sizeof(fifoStatus));
@@ -165,14 +166,14 @@ void Nrf24l::readRegister(uint8_t reg, uint8_t * value, uint8_t len)
     nrfSpiWrite((R_REGISTER | (REGISTER_MASK & reg)), value, true, len);
 }
 
-void Nrf24l::writeRegister(uint8_t reg, const uint8_t * value, uint8_t len) 
+void Nrf24l::writeRegister(uint8_t reg, const uint8_t * value, uint8_t len)
 // Writes an array of bytes into inte the MiRF registers.
 {
 	nrfSpiWrite((W_REGISTER | (REGISTER_MASK & reg)), const_cast<uint8_t*>(value), false, len);
 }
 
 
-void Nrf24l::send(const uint8_t * value) 
+void Nrf24l::send(const uint8_t * value)
 // Sends a data package to the default address. Be sure to send the correct
 // amount of bytes as configured as payload on the receiver.
 {
@@ -211,7 +212,7 @@ bool Nrf24l::isSending() {
 	uint8_t status;
 	if(PTX){
 		status = getStatus();
-	    	
+
 		/*
 		 *  if sending successful (TX_DS) or max retries exceded (MAX_RT).
 		 */
